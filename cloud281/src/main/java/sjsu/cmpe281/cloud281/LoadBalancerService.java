@@ -522,6 +522,690 @@ public class LoadBalancerService {
 			return new ModelAndView(cloudwatch, "cloudwatch.ftl");
 			//return new ModelAndView(cloudwatch, "test.ftl");
 		}, new FreeMarkerEngine());
+		
+		
+		
+/////Miti //////
+		
+        
+        
+        // HoneyBee Algorithm Implementation
+        // Food Source in Honey Bee allocation is equivalent to resources under question 
+        // Fitness in the Honey Bee is equivalent to the number of unallocated units of the resources
+        // Standard efforts assumed for all requests --> Out of scope to implement for different efforts
+        // Restful Web Service for resource allocation
+         
+        get("/honeyBeeAllocation", (request, response) -> {
+        	
+        	ArrayList<Resources> resourceList = new ArrayList<Resources>(resourceStorage.getResourcesFromHashMap());
+        	ArrayList<ResourceRequest> requestList = new ArrayList<ResourceRequest>(requestResourceStorage.getResourcesFromHashMap());
+        	ArrayList<String> resourceNames = new ArrayList<String> ();
+       	
+        	resourceList = resourceStorage.getResourcesFromHashMap();
+        	requestList = requestResourceStorage.getResourcesFromHashMap();
+        	String newLine = System.getProperty("line.separator");
+        	
+        	System.out.println("Resource List as follows:");
+        	for(int j=0; j< resourceList.size(); j++ )
+        	{
+        		String requestName = resourceList.get(j).getResourceName(); 
+        		int cpu = resourceList.get(j).getCpu_units();
+        		int memory = resourceList.get(j).getMemory();
+        		int storage = resourceList.get(j).getStorage();
+        		System.out.println(newLine);
+        		//System.out.println("Total Resources Before Allocation");
+        		System.out.println("Resource Name: "+requestName);
+        		System.out.println("CPU units: "+cpu);
+        		System.out.println("Memory units: "+memory);
+        		System.out.println("Storage units: "+storage);
+        		System.out.println("Full Allocation Flag: " + resourceList.get(j).isFullAllocation());
+        		System.out.println("Partial Allocation Flag: " + resourceList.get(j).isPartialAllocation());
+        		System.out.println(newLine);
+        	}
+        	System.out.println("Request List as follows:");
+        	for(int j=0; j<requestList.size(); j++ )
+        	{
+        		int requestID = requestList.get(j).getRequestId();
+        		int cpu = requestList.get(j).getCpu_units();
+        		int memory = requestList.get(j).getMemory();
+        		int storage = requestList.get(j).getStorage();
+        		System.out.println(newLine);
+        		System.out.println("Request ID: "+requestID);
+        		System.out.println("CPU units required: "+cpu);
+        		System.out.println("Memory units required: "+memory);
+        		System.out.println("Storage units required: "+storage);
+        		System.out.println("Allocation Status: " +requestList.get(j).isAllocated());
+        		System.out.println(newLine);
+        	}
+        	
+        	// Allocating the unallocated resources according to Honey Bee Algorithm
+        	// A food source is chosen with the probability which is proportional to its quality
+        	// Similarly a resource is chosen according to the number of its free units
+        	// Different schemes can be used to calculate the probability values
+        	// For the purpose of this implementation, simple resource availability is chosen as the selection criteria
+        	
+        	for (int i= 0; i<count; i++)
+        	{
+        		int CPURequested = requestList.get(i).getCpu_units();
+				int memoryRequested = requestList.get(i).getMemory();
+				int storageRequested = requestList.get(i).getStorage();
+				int requestAllocated = 0;
+        		
+        		while((requestList.get(i).isAllocated() == false) && requestAllocated==0)
+        		{
+        			for(int j = 0; j<count/2; j++)
+        			{
+        				int totalCPU = resourceList.get(j).getCpu_units();
+                		int totalMemory = resourceList.get(j).getMemory();
+                		int totalStorage = resourceList.get(j).getStorage();
+                		
+        				//If the resource is not allocated
+                		// Checking in order -  First CPU, Second Memory, Third Storage -> Honey Bee - health of the flower patch
+        				if(resourceList.get(j).isFullAllocation() == false)
+        				{
+        					if((Math.abs(totalCPU) - Math.abs(CPURequested)) > 0)
+        					{
+        						if(((Math.abs(totalMemory)) - Math.abs(memoryRequested)) > 0 )
+        						{
+        							
+        							if((Math.abs(totalStorage) - Math.abs(storageRequested)) > 0)
+        							{
+        								totalCPU = Math.abs(totalCPU) - Math.abs(CPURequested);
+        								totalMemory = (Math.abs(totalMemory)) - Math.abs(memoryRequested);
+        								totalStorage = Math.abs(totalStorage) - Math.abs(storageRequested);    								
+        								resourceList.get(j).setCpu_units(totalCPU);
+        								resourceList.get(j).setMemory(totalMemory);
+        								resourceList.get(j).setStorage(totalStorage);      								
+        								resourceList.get(j).setFullAllocation(false);
+        								resourceList.get(j).setPartialAllocation(true);
+        								requestList.get(i).setAllocated(true); 
+        								
+        							}
+        							else
+        							{
+        								if((Math.abs(totalStorage) - Math.abs(storageRequested)) == 0)
+        								{
+        									totalCPU = Math.abs(totalCPU) - Math.abs(CPURequested);
+            								totalMemory = (Math.abs(totalMemory)) - Math.abs(memoryRequested);
+            								totalStorage = Math.abs(totalStorage) - Math.abs(storageRequested);
+            								resourceList.get(j).setCpu_units(totalCPU);
+            								resourceList.get(j).setMemory(totalMemory);
+            								resourceList.get(j).setStorage(totalStorage);
+            								resourceList.get(j).setFullAllocation(true);
+            								resourceList.get(j).setPartialAllocation(false);
+            								requestList.get(i).setAllocated(true); 
+        								}
+        								
+        							}
+        							if((Math.abs(totalStorage) - Math.abs(storageRequested)) < 0)
+        							{
+        								break;
+        							}
+        							
+        						}
+        						// Resource allocation leading to complete utilization of the resource
+        						// Now utilization is maximum
+        						else
+        						{
+        							if(((Math.abs(totalMemory)) - Math.abs(memoryRequested)) == 0 )
+        							{
+
+            							if((Math.abs(totalStorage) - Math.abs(storageRequested)) > 0)
+            							{
+            								totalCPU = Math.abs(totalCPU) - Math.abs(CPURequested);
+            								totalMemory = (Math.abs(totalMemory)) - Math.abs(memoryRequested);
+            								totalStorage = Math.abs(totalStorage) - Math.abs(storageRequested);
+            								resourceList.get(j).setCpu_units(totalCPU);
+            								resourceList.get(j).setMemory(totalMemory);
+            								resourceList.get(j).setStorage(totalStorage);
+            								resourceList.get(j).setFullAllocation(true);
+            								resourceList.get(j).setPartialAllocation(false);
+            								requestList.get(i).setAllocated(true); 
+            								
+            							}
+            							else
+            							{
+            								if((Math.abs(totalStorage) - Math.abs(storageRequested)) == 0)
+            								{
+            									totalCPU = Math.abs(totalCPU) - Math.abs(CPURequested);
+                								totalMemory = (Math.abs(totalMemory)) - Math.abs(memoryRequested);
+                								totalStorage = Math.abs(totalStorage) - Math.abs(storageRequested);
+                								resourceList.get(j).setCpu_units(totalCPU);
+                								resourceList.get(j).setMemory(totalMemory);
+                								resourceList.get(j).setStorage(totalStorage);		
+                								resourceList.get(j).setFullAllocation(true);
+                								resourceList.get(j).setPartialAllocation(false);
+                								requestList.get(i).setAllocated(true); 
+            								}
+            								
+            							}
+            							if((Math.abs(totalStorage) - Math.abs(storageRequested)) < 0)
+            							{
+            								continue;
+            							}				
+        								
+        							}
+        						}
+        					}
+        					else
+        					{
+        						if((Math.abs(totalCPU) - Math.abs(CPURequested)) == 0)
+        						{
+            						if(((Math.abs(totalMemory)) - Math.abs(memoryRequested)) > 0 )
+            						{
+            							
+            							if((Math.abs(totalStorage) - Math.abs(storageRequested)) > 0)
+            							{
+            								totalCPU = Math.abs(totalCPU) - Math.abs(CPURequested);
+            								totalMemory = (Math.abs(totalMemory)) - Math.abs(memoryRequested);
+            								totalStorage = Math.abs(totalStorage) - Math.abs(storageRequested);
+            								resourceList.get(j).setCpu_units(totalCPU);
+            								resourceList.get(j).setMemory(totalMemory);
+            								resourceList.get(j).setStorage(totalStorage);     								
+            								resourceList.get(j).setFullAllocation(true);
+            								resourceList.get(j).setPartialAllocation(false);
+            								requestList.get(i).setAllocated(true); 
+            								
+            							}
+            							else
+            							{
+            								if((Math.abs(totalStorage) - Math.abs(storageRequested)) == 0)
+            								{
+            									totalCPU = Math.abs(totalCPU) - Math.abs(CPURequested);
+                								totalMemory = (Math.abs(totalMemory)) - Math.abs(memoryRequested);
+                								totalStorage = Math.abs(totalStorage) - Math.abs(storageRequested);
+                								resourceList.get(j).setCpu_units(totalCPU);
+                								resourceList.get(j).setMemory(totalMemory);
+                								resourceList.get(j).setStorage(totalStorage);              								
+                								resourceList.get(j).setFullAllocation(true);
+                								resourceList.get(j).setPartialAllocation(false);
+                								requestList.get(i).setAllocated(true); 
+            								}
+            								
+            							}
+            							if((Math.abs(totalStorage) - Math.abs(storageRequested)) < 0)
+            							{
+            								continue;
+            							}
+            							
+            						}
+            						else
+            						{
+            							if(((Math.abs(totalMemory)) - Math.abs(memoryRequested)) == 0 )
+            							{
+
+                							if((Math.abs(totalStorage) - Math.abs(storageRequested)) > 0)
+                							{
+                								totalCPU = Math.abs(totalCPU) - Math.abs(CPURequested);
+                								totalMemory = (Math.abs(totalMemory)) - Math.abs(memoryRequested);
+                								totalStorage = Math.abs(totalStorage) - Math.abs(storageRequested);
+                								resourceList.get(j).setCpu_units(totalCPU);
+                								resourceList.get(j).setMemory(totalMemory);
+                								resourceList.get(j).setStorage(totalStorage);             								
+                								resourceList.get(j).setFullAllocation(true);
+                								resourceList.get(j).setPartialAllocation(false);
+                								requestList.get(i).setAllocated(true); 
+                								
+                							}
+                							else
+                							{
+                								if((Math.abs(totalStorage) - Math.abs(storageRequested)) == 0)
+                								{
+                									totalCPU = Math.abs(totalCPU) - Math.abs(CPURequested);
+                    								totalMemory = (Math.abs(totalMemory)) - Math.abs(memoryRequested);
+                    								totalStorage = Math.abs(totalStorage) - Math.abs(storageRequested);
+                    								resourceList.get(j).setCpu_units(totalCPU);
+                    								resourceList.get(j).setMemory(totalMemory);
+                    								resourceList.get(j).setStorage(totalStorage);                								
+                    								resourceList.get(j).setFullAllocation(true);
+                    								resourceList.get(j).setPartialAllocation(false);
+                    								requestList.get(i).setAllocated(true); 
+                								}
+                								
+                							}
+                							if((Math.abs(totalStorage) - Math.abs(storageRequested)) < 0)
+                							{
+                								continue;
+                							}				
+            								
+            							}
+            						}
+        						}
+        					}
+        					
+        					if((Math.abs(totalCPU) - Math.abs(CPURequested)) < 0)
+        					{
+        						continue;
+        					}
+        					
+        				}
+        				// If no resources for allocation. Complete utilization reached.
+        				else
+        				{
+        					//System.out.println("Request not satisfied !!");
+        				}
+        			}
+        			if(requestList.get(i).isAllocated()==true)
+        				
+        			{
+        				System.out.println(newLine);
+        				System.out.println("---------------------------------------------------------------------");
+        				System.out.println("Requested resources for Request ID: "+requestList.get(i).getRequestId() +" are Allocated");
+        				System.out.println("----------------------------------------------------------------------");
+        				System.out.println(newLine);
+        			}
+        			else
+        			{
+        				requestAllocated = requestAllocated + 1;
+        			}
+        		}
+        	}       	
+        	System.out.println("Resources List (after allocation) as follows: ");
+        	for(int j=0; j< resourceList.size(); j++ )
+        	{
+        		String requestName = resourceList.get(j).getResourceName(); 
+        		int cpu = resourceList.get(j).getCpu_units();
+        		int memory = resourceList.get(j).getMemory();
+        		int storage = resourceList.get(j).getStorage();
+        		System.out.println(newLine);
+        		
+        		System.out.println("Resource Name: "+requestName);
+        		System.out.println("CPU units: "+cpu);
+        		System.out.println("Memory units: "+memory);
+        		System.out.println("Storage units: "+storage);
+        		System.out.println("Full Allocation Flag: " + resourceList.get(j).isFullAllocation());
+        		System.out.println("Partial Allocation Flag: " + resourceList.get(j).isPartialAllocation());
+        		System.out.println(newLine);
+        	}
+        	
+        	resourceNames = resourceStorage.updateResourcesInHashMap(resourceList);
+        	
+        	 return "-----------------Following Resources Allocated----------------" + resourceNames;
+        	
+        });
+        
+        
+        
+        
+        
+        ///Miti
+        
+ get("honeyBeeAllocation/billing", (request, response) ->{
+        	
+        	
+        	String newLine = System.getProperty("line.separator");
+        	
+        	final double costOfCpuUnints = 0.38;
+        	final double costOfMemoryUnits = 0.70;
+        	final double costOfStorageUnits = 0.85;
+        	
+        	double totalCostOfCpuUnits = 0.0;
+        	double totalCostOfMemoryUnits =0.0;
+        	double totalCostOfStorageUnits = 0.0;
+        	double totalBill = 0.0;
+        	double sumOfTotalBills = 0.0;
+        	
+        	Map<String, Object> billing = new HashMap<>();
+        	
+        	System.out.println("-----------------------------------------------------------");
+        	System.out.println("The cost of CPU units: $"+costOfCpuUnints+"/units");
+        	System.out.println("The cost of Memory units: $"+costOfMemoryUnits+"/units");
+        	System.out.println("The cost of Storage units: $"+costOfStorageUnits+"/units");
+        	System.out.println("-----------------------------------------------------------");
+        	
+        	ArrayList<Resources> allocatedResources = new ArrayList<Resources>();
+        	allocatedResources = resourceStorage.getAllocatedResourcesFromHashMap();
+        	
+        	if(allocatedResources.isEmpty()==false)
+        	{
+        	
+	        	for(int i= 0; i< allocatedResources.size(); i++)
+	        	{
+	        		if((allocatedResources.get(i).isFullAllocation() == true) || (allocatedResources.get(i).isPartialAllocation()== true))
+	        		{
+	        			totalCostOfCpuUnits = Math.abs(allocatedResources.get(i).getCpu_units())* costOfCpuUnints;
+	        			totalCostOfMemoryUnits = Math.abs(allocatedResources.get(i).getMemory()) * costOfMemoryUnits;
+	        			totalCostOfStorageUnits = Math.abs(allocatedResources.get(i).getStorage()) * costOfStorageUnits;
+	        			totalBill = totalCostOfCpuUnits + totalCostOfMemoryUnits + totalCostOfStorageUnits;	
+	        			
+	        			System.out.println(newLine);
+	            		System.out.println("Allocated Resource Name: " +allocatedResources.get(i).getResourceName());
+	            		System.out.println("Cost of allocated CPU Units: "+totalCostOfCpuUnits);
+	            		System.out.println("Cost of allocated Memory Units: "+totalCostOfMemoryUnits);
+	            		System.out.println("Cost of allocated Storage Units: "+totalCostOfStorageUnits);
+	            		System.out.println("Total Bill for the allocated Resources: "+totalBill);
+	            		System.out.println(newLine);
+	            		
+	            		billing.put("message","Billing of Allocated Resources");
+	            		billing.put("Allocated Resource Name -- ", allocatedResources.get(i).getResourceName());
+	            		billing.put("Cost of allocated CPU Units -- ", totalCostOfCpuUnits);
+	            		billing.put("Cost of allocated Memory Units -- ", totalCostOfMemoryUnits);
+	            		billing.put("Cost of allocated Storage Units -- ", totalCostOfStorageUnits);
+	            		billing.put("Total Bill for the allocated Resources --", totalBill);
+	            		
+	        		}
+	        		sumOfTotalBills = totalBill + sumOfTotalBills;
+	        	}
+        	}
+        	else
+        	{
+        		billing.put("message","Due to insufficient resource, no requests are fullfilled");
+        		
+        	}
+        	
+        	return "Total Cost of the Resources: $" +sumOfTotalBills;
+        
+        });
+        
+        
+        // Location based resource allocation
+        
+        // HoneyBee Algorithm Implementation for location based resource allocation
+        // Food Source in Honey Bee allocation is equivalent to resources under question 
+        // Fitness in the Honey Bee is equivalent to the number of unallocated units of the resources
+        // Standard efforts assumed for all requests --> Out of scope to implement for different efforts
+        // Restful Web Service for resource allocation
+         
+        get("/honeyBeeAllocation/location", (request, response) -> {
+        	
+        	ArrayList<Resources> resourceList = new ArrayList<Resources>(resourceStorage.getResourcesFromHashMap());
+        	ArrayList<ResourceRequest> requestList = new ArrayList<ResourceRequest>(requestResourceStorage.getResourcesFromHashMap());
+        	ArrayList<String> resourceNames = new ArrayList<String> ();
+       	
+        	resourceList = resourceStorage.getResourcesFromHashMap();
+        	requestList = requestResourceStorage.getResourcesFromHashMap();
+        	String newLine = System.getProperty("line.separator");
+        	
+        	System.out.println("Resource List as follows:");
+        	for(int j=0; j< resourceList.size(); j++ )
+        	{
+        		String requestName = resourceList.get(j).getResourceName(); 
+        		int cpu = resourceList.get(j).getCpu_units();
+        		int memory = resourceList.get(j).getMemory();
+        		int storage = resourceList.get(j).getStorage();
+        		int locationID = resourceList.get(j).getLocationId();
+        		System.out.println(newLine);
+    
+        		System.out.println("Resource Name: "+requestName);
+        		System.out.println("CPU units: "+cpu);
+        		System.out.println("Memory units: "+memory);
+        		System.out.println("Storage units: "+storage);
+        		System.out.println("Location ID:" +locationID);
+        		System.out.println("Full Allocation Flag: " + resourceList.get(j).isFullAllocation());
+        		System.out.println("Partial Allocation Flag: " + resourceList.get(j).isPartialAllocation());
+        		System.out.println(newLine);
+        	}
+        	System.out.println("Request List as follows:");
+        	for(int j=0; j<requestList.size(); j++ )
+        	{
+        		int requestID = requestList.get(j).getRequestId();
+        		int cpu = requestList.get(j).getCpu_units();
+        		int memory = requestList.get(j).getMemory();
+        		int storage = requestList.get(j).getStorage();
+        		int locationID = requestList.get(j).getLocationId();
+        		System.out.println(newLine);
+        		System.out.println("Request ID: "+requestID);
+        		System.out.println("CPU units required: "+cpu);
+        		System.out.println("Memory units required: "+memory);
+        		System.out.println("Storage units required: "+storage);
+        		System.out.println("Location ID required:" +locationID);
+        		System.out.println("Allocation Status: " +requestList.get(j).isAllocated());
+        		System.out.println(newLine);
+        	}
+        	
+        	// Allocating the unallocated resources according to Honey Bee Algorithm
+        	// A food source is chosen with the probability which is proportional to its quality
+        	// Similarly a resource is chosen according to the number of its free units
+        	// Different schemes can be used to calculate the probability values
+        	// For the purpose of this implementation, simple resource availability is chosen as the selection criteria
+        	
+        	for (int i= 0; i<count; i++)
+        	{
+        		int CPURequested = requestList.get(i).getCpu_units();
+				int memoryRequested = requestList.get(i).getMemory();
+				int storageRequested = requestList.get(i).getStorage();
+				int locationIDRequested = requestList.get(i).getLocationId();
+				int requestAllocated = 0;
+        		
+        		while((requestList.get(i).isAllocated() == false) && requestAllocated==0)
+        		{
+        			for(int j = 0; j<count/2; j++)
+        			{
+        				int totalCPU = resourceList.get(j).getCpu_units();
+                		int totalMemory = resourceList.get(j).getMemory();
+                		int totalStorage = resourceList.get(j).getStorage();
+                		int resourcelocationID = resourceList.get(j).getLocationId();
+                		
+        				//If the resource is not allocated
+                		// Checking in order -  First CPU, Second Memory, Third Storage -> Honey Bee - health of the flower patch
+        				if(resourceList.get(j).isFullAllocation() == false)
+        				{
+        					if((Math.abs(totalCPU) - Math.abs(CPURequested)) > 0)
+        					{
+        						if(((Math.abs(totalMemory)) - Math.abs(memoryRequested)) > 0 )
+        						{
+        							
+        							if((Math.abs(totalStorage) - Math.abs(storageRequested)) > 0 && locationIDRequested==resourcelocationID)
+        							{
+        								totalCPU = Math.abs(totalCPU) - Math.abs(CPURequested);
+        								totalMemory = (Math.abs(totalMemory)) - Math.abs(memoryRequested);
+        								totalStorage = Math.abs(totalStorage) - Math.abs(storageRequested);    								
+        								resourceList.get(j).setCpu_units(totalCPU);
+        								resourceList.get(j).setMemory(totalMemory);
+        								resourceList.get(j).setStorage(totalStorage);      								
+        								resourceList.get(j).setFullAllocation(false);
+        								resourceList.get(j).setPartialAllocation(true);
+        								requestList.get(i).setAllocated(true); 
+        								
+        							}
+        							else
+        							{
+        								if((Math.abs(totalStorage) - Math.abs(storageRequested)) == 0 && locationIDRequested==resourcelocationID)
+        								{
+        									totalCPU = Math.abs(totalCPU) - Math.abs(CPURequested);
+            								totalMemory = (Math.abs(totalMemory)) - Math.abs(memoryRequested);
+            								totalStorage = Math.abs(totalStorage) - Math.abs(storageRequested);
+            								resourceList.get(j).setCpu_units(totalCPU);
+            								resourceList.get(j).setMemory(totalMemory);
+            								resourceList.get(j).setStorage(totalStorage);
+            								resourceList.get(j).setFullAllocation(true);
+            								resourceList.get(j).setPartialAllocation(false);
+            								requestList.get(i).setAllocated(true); 
+        								}
+        								
+        							}
+        							if((Math.abs(totalStorage) - Math.abs(storageRequested)) < 0)
+        							{
+        								break;
+        							}
+        							
+        						}
+        						// Resource allocation leading to complete utilization of the resource
+        						// Now utilization is maximum
+        						else
+        						{
+        							if(((Math.abs(totalMemory)) - Math.abs(memoryRequested)) == 0 )
+        							{
+
+            							if((Math.abs(totalStorage) - Math.abs(storageRequested)) > 0 && locationIDRequested==resourcelocationID)
+            							{
+            								totalCPU = Math.abs(totalCPU) - Math.abs(CPURequested);
+            								totalMemory = (Math.abs(totalMemory)) - Math.abs(memoryRequested);
+            								totalStorage = Math.abs(totalStorage) - Math.abs(storageRequested);
+            								resourceList.get(j).setCpu_units(totalCPU);
+            								resourceList.get(j).setMemory(totalMemory);
+            								resourceList.get(j).setStorage(totalStorage);
+            								resourceList.get(j).setFullAllocation(true);
+            								resourceList.get(j).setPartialAllocation(false);
+            								requestList.get(i).setAllocated(true); 
+            								
+            							}
+            							else
+            							{
+            								if((Math.abs(totalStorage) - Math.abs(storageRequested)) == 0 && locationIDRequested==resourcelocationID)
+            								{
+            									totalCPU = Math.abs(totalCPU) - Math.abs(CPURequested);
+                								totalMemory = (Math.abs(totalMemory)) - Math.abs(memoryRequested);
+                								totalStorage = Math.abs(totalStorage) - Math.abs(storageRequested);
+                								resourceList.get(j).setCpu_units(totalCPU);
+                								resourceList.get(j).setMemory(totalMemory);
+                								resourceList.get(j).setStorage(totalStorage);		
+                								resourceList.get(j).setFullAllocation(true);
+                								resourceList.get(j).setPartialAllocation(false);
+                								requestList.get(i).setAllocated(true); 
+            								}
+            								
+            							}
+            							if((Math.abs(totalStorage) - Math.abs(storageRequested)) < 0)
+            							{
+            								continue;
+            							}				
+        								
+        							}
+        						}
+        					}
+        					else
+        					{
+        						if((Math.abs(totalCPU) - Math.abs(CPURequested)) == 0)
+        						{
+            						if(((Math.abs(totalMemory)) - Math.abs(memoryRequested)) > 0 )
+            						{
+            							
+            							if((Math.abs(totalStorage) - Math.abs(storageRequested)) > 0 && locationIDRequested==resourcelocationID)
+            							{
+            								totalCPU = Math.abs(totalCPU) - Math.abs(CPURequested);
+            								totalMemory = (Math.abs(totalMemory)) - Math.abs(memoryRequested);
+            								totalStorage = Math.abs(totalStorage) - Math.abs(storageRequested);
+            								resourceList.get(j).setCpu_units(totalCPU);
+            								resourceList.get(j).setMemory(totalMemory);
+            								resourceList.get(j).setStorage(totalStorage);     								
+            								resourceList.get(j).setFullAllocation(true);
+            								resourceList.get(j).setPartialAllocation(false);
+            								requestList.get(i).setAllocated(true); 
+            								
+            							}
+            							else
+            							{
+            								if((Math.abs(totalStorage) - Math.abs(storageRequested)) == 0 && locationIDRequested==resourcelocationID)
+            								{
+            									totalCPU = Math.abs(totalCPU) - Math.abs(CPURequested);
+                								totalMemory = (Math.abs(totalMemory)) - Math.abs(memoryRequested);
+                								totalStorage = Math.abs(totalStorage) - Math.abs(storageRequested);
+                								resourceList.get(j).setCpu_units(totalCPU);
+                								resourceList.get(j).setMemory(totalMemory);
+                								resourceList.get(j).setStorage(totalStorage);              								
+                								resourceList.get(j).setFullAllocation(true);
+                								resourceList.get(j).setPartialAllocation(false);
+                								requestList.get(i).setAllocated(true); 
+            								}
+            								
+            							}
+            							if((Math.abs(totalStorage) - Math.abs(storageRequested)) < 0)
+            							{
+            								continue;
+            							}
+            							
+            						}
+            						else
+            						{
+            							if(((Math.abs(totalMemory)) - Math.abs(memoryRequested)) == 0 )
+            							{
+
+                							if((Math.abs(totalStorage) - Math.abs(storageRequested)) > 0 && locationIDRequested==resourcelocationID)
+                							{
+                								totalCPU = Math.abs(totalCPU) - Math.abs(CPURequested);
+                								totalMemory = (Math.abs(totalMemory)) - Math.abs(memoryRequested);
+                								totalStorage = Math.abs(totalStorage) - Math.abs(storageRequested);
+                								resourceList.get(j).setCpu_units(totalCPU);
+                								resourceList.get(j).setMemory(totalMemory);
+                								resourceList.get(j).setStorage(totalStorage);             								
+                								resourceList.get(j).setFullAllocation(true);
+                								resourceList.get(j).setPartialAllocation(false);
+                								requestList.get(i).setAllocated(true); 
+                								
+                							}
+                							else
+                							{
+                								if((Math.abs(totalStorage) - Math.abs(storageRequested)) == 0 && locationIDRequested==resourcelocationID)
+                								{
+                									totalCPU = Math.abs(totalCPU) - Math.abs(CPURequested);
+                    								totalMemory = (Math.abs(totalMemory)) - Math.abs(memoryRequested);
+                    								totalStorage = Math.abs(totalStorage) - Math.abs(storageRequested);
+                    								resourceList.get(j).setCpu_units(totalCPU);
+                    								resourceList.get(j).setMemory(totalMemory);
+                    								resourceList.get(j).setStorage(totalStorage);                								
+                    								resourceList.get(j).setFullAllocation(true);
+                    								resourceList.get(j).setPartialAllocation(false);
+                    								requestList.get(i).setAllocated(true); 
+                								}
+                								
+                							}
+                							if((Math.abs(totalStorage) - Math.abs(storageRequested)) < 0)
+                							{
+                								continue;
+                							}				
+            								
+            							}
+            						}
+        						}
+        					}
+        					
+        					if((Math.abs(totalCPU) - Math.abs(CPURequested)) < 0)
+        					{
+        						continue;
+        					}
+        					
+        				}
+        				// If no resources for allocation. Complete utilization reached.
+        				else
+        				{
+        					//System.out.println("Insufficient Resources for allocation request in requested Location ! Request not satisfied !!");
+        				}
+        			}
+        			if(requestList.get(i).isAllocated()==true)
+        				
+        			{
+        				System.out.println(newLine);
+        				System.out.println("---------------------------------------------------------------------");
+        				System.out.println("Requested resources for Request ID: "+requestList.get(i).getRequestId() +" are Allocated");
+        				System.out.println("----------------------------------------------------------------------");
+        				System.out.println(newLine);
+        			}
+        			else
+        			{
+        				requestAllocated = requestAllocated + 1;
+        			}
+        		}
+        	}       	
+        	System.out.println("Resources List (after allocation) as follows: ");
+        	for(int j=0; j< resourceList.size(); j++ )
+        	{
+        		String requestName = resourceList.get(j).getResourceName(); 
+        		int cpu = resourceList.get(j).getCpu_units();
+        		int memory = resourceList.get(j).getMemory();
+        		int storage = resourceList.get(j).getStorage();
+        		System.out.println(newLine);
+        		
+        		System.out.println("Resource Name: "+requestName);
+        		System.out.println("CPU units: "+cpu);
+        		System.out.println("Memory units: "+memory);
+        		System.out.println("Storage units: "+storage);
+        		System.out.println("Location Id:" +resourceList.get(j).getLocationId());
+        		System.out.println("Full Allocation Flag: " + resourceList.get(j).isFullAllocation());
+        		System.out.println("Partial Allocation Flag: " + resourceList.get(j).isPartialAllocation());
+        		System.out.println(newLine);
+        	}
+        	
+        	resourceNames = resourceStorage.updateResourcesInHashMap(resourceList);
+        	
+        	 return "-----------------Following Resources Allocated----------------" +resourceNames;
+        	
+        }); 
+		
+		
+		
+		
+		
 
 	}
 
