@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+
 import sjsu.cmpe281.requestAndResource.LocationBased;
 import sjsu.cmpe281.requestAndResource.RequestResourceStorage;
 import sjsu.cmpe281.requestAndResource.ResourceRequest;
@@ -18,7 +19,7 @@ import sjsu.cmpe281.requestAndResource.Resources;
 import spark.ModelAndView;
 import spark.template.freemarker.FreeMarkerEngine;
 
-public class LoadBalancerService {
+public class LoadBalancerService 	 {
 
 	public static void main(String[] args) throws IOException {
 
@@ -1205,6 +1206,8 @@ public class LoadBalancerService {
       //santosh
       //Location Aware Multi User Algorithm
       get("/RAMD",(request, response) -> {
+    	  			
+    	  				
 
       					ArrayList<Resources> resourceList = new ArrayList<Resources>(resourceStorage.getResourcesFromHashMap());
       					ArrayList<ResourceRequest> requestList = new ArrayList<ResourceRequest>(requestResourceStorage.getResourcesFromHashMap());
@@ -1216,16 +1219,16 @@ public class LoadBalancerService {
       						int memory = resourceList.get(j).getMemory();
       						int storage = resourceList.get(j).getStorage();
       						int location = resourceList.get(j).getLocationId();
-      						System.out.println("**********************************************************");
+      						System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
       						System.out.println("List of Resources");
-      						System.out.println("Resource Name: " + requestName);
-      						System.out.println("Resource Location: " + location);
-      						System.out.println("Resource CPU units: " + cpu+"mHZ");
-      						System.out.println("Resource Memory units: " + memory+"MB");
-      						System.out.println("Resource Storage units: " + storage+"GB");
+      						System.out.println("Name of Resource: " + requestName);
+      						System.out.println("Location: " + location);
+      						System.out.println("CPU units: " + cpu+"mHZ");
+      						System.out.println("Memory units: " + memory+"MB");
+      						System.out.println("Storage units: " + storage+"GB");
       						System.out.println("Full Allocation Flag: "+ resourceList.get(j).isFullAllocation());
       						System.out.println("Partial Allocation Flag: "+ resourceList.get(j).isPartialAllocation());
-      						System.out.println("**********************************************************");
+      						System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
       					}
       					System.out.println("----------------------------------------------------------------------------------------------------");
       					for (int j = 0; j < requestList.size(); j++) {
@@ -1234,14 +1237,14 @@ public class LoadBalancerService {
       						int cpu = requestList.get(j).getCpu_units();
       						int memory = requestList.get(j).getMemory();
       						int storage = requestList.get(j).getStorage();
-      						System.out.println("**********************************************************");
-      						System.out.println("Request ID: " + requestID);
-      						System.out.println("Location ID: " + requestLocationID);
-      						System.out.println("Request CPU units: " + cpu+"mHZ");
-      						System.out.println("Request Memory units: " + memory+"MB");
-      						System.out.println("Request Storage units: " + storage+"GB");
-      						System.out.println("Request Is Allocated? "+ requestList.get(j).isAllocated());
-      						System.out.println("**********************************************************");
+      						System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+      						System.out.println("Request_ID: " + requestID);
+      						System.out.println("Location_ID: " + requestLocationID);
+      						System.out.println("CPU units: " + cpu+"mHZ");
+      						System.out.println("Memory units: " + memory+"MB");
+      						System.out.println("Storage units: " + storage+"GB");
+      						System.out.println("Whether Request is allocated? "+ requestList.get(j).isAllocated());
+      						System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
       					}
 
       					for (int i = 0; i < count; i++) {
@@ -1463,13 +1466,13 @@ public class LoadBalancerService {
       								}
       							}
       							if (requestList.get(i).isAllocated() == true) {
-      								System.out.println("******************************************************************");
-      								System.out.println("Request ID: "+ requestList.get(i).getRequestId()+ " is Allocated");
-      								System.out.println("******************************************************************");
+      								System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+      								System.out.println("Request_ID: "+ requestList.get(i).getRequestId()+ " is Allocated");
+      								System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
       							} else {
-      								System.out.println("#####################################################################");
+      								System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
       								System.out.println("Request ID: "+ requestList.get(i).getRequestId()+ " is not Allocated");
-      								System.out.println("#####################################################################");
+      								System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
       								requestServed = requestServed + 1;
       							}
       						}
@@ -1481,16 +1484,16 @@ public class LoadBalancerService {
       						int memory = resourceList.get(j).getMemory();
       						int storage = resourceList.get(j).getStorage();
       						int location = resourceList.get(j).getLocationId();
-      						System.out.println("**********************************************************");
+      						System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
       						System.out.println("List of Resources which are allocated");
-      						System.out.println("Resource Name: " + requestName);
-      						System.out.println("Location ID: " + location);
-      						System.out.println("Resource CPU units: " + cpu+"mHz");
-      						System.out.println("Resource Memory units: " + memory+"MB");
-      						System.out.println("Resource Storage units: " + storage +"GB");
+      						System.out.println("Name of Resource: " + requestName);
+      						System.out.println("Location_ID: " + location);
+      						System.out.println("CPU units: " + cpu+"mHz");
+      						System.out.println("Memory units: " + memory+"MB");
+      						System.out.println("Storage units: " + storage +"GB");
       						System.out.println("Full Allocation Flag: "+ resourceList.get(j).isFullAllocation());
       						System.out.println("Partial Allocation Flag: "+ resourceList.get(j).isPartialAllocation());
-      						System.out.println("**********************************************************");
+      						System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
       					}
 
       					resourceNames = resourceStorage.updateResourcesInHashMap(resourceList);
@@ -1501,7 +1504,7 @@ public class LoadBalancerService {
       					/*return new ModelAndView(resourceTemplate, "resource.ftl");
       				}, new FreeMarkerEngine());*/
 
-      					return "**********Following Resources Allocated*********"+ resourceNames;
+      					return "These Resources are allocated by using Location Aware multi User Resource Allocation Algorithm"+ resourceNames;
 
       				});
       //RAMD Billing
@@ -1545,11 +1548,11 @@ public class LoadBalancerService {
      	        			totalBill = totalCostOfCpuUnits + totalCostOfMemoryUnits + totalCostOfStorageUnits;	
      	        			
      	        			System.out.println(newLine);
-     	            		System.out.println("Allocated Resource Name: " +allocatedResources.get(i).getResourceName());
-     	            		System.out.println("Cost of allocated CPU Units: "+totalCostOfCpuUnits);
-     	            		System.out.println("Cost of allocated Memory Units: "+totalCostOfMemoryUnits);
-     	            		System.out.println("Cost of allocated Storage Units: "+totalCostOfStorageUnits);
-     	            		System.out.println("Total Bill for the allocated Resources: "+totalBill);
+     	            		System.out.println("Name of Resources which are allocated: " +allocatedResources.get(i).getResourceName());
+     	            		System.out.println("Cost for utillyzing CPU Units: "+totalCostOfCpuUnits);
+     	            		System.out.println("Cost for utilyzing Memory Units: "+totalCostOfMemoryUnits);
+     	            		System.out.println("Cost for utilyzing Storage Units: "+totalCostOfStorageUnits);
+     	            		System.out.println("Total Bill : "+totalBill);
      	            		System.out.println(newLine);
      	            		
      	            		billing.put("message","Billing of Allocated Resources");
@@ -1569,7 +1572,7 @@ public class LoadBalancerService {
              		
              	}
              	
-             	return "Total Cost of the Resources: $" +sumOfTotalBills;
+             	return "Total Cost of the Resources which are allocated is : $" +sumOfTotalBills;
              
              });
       //RAMD location
@@ -1593,7 +1596,7 @@ public class LoadBalancerService {
 				
 			}
 			
-			return "**************Allocated Resources With Location Name************** "+locationBasedAllocatedResources;
+			return "Resources Allocated with Location Names are "+locationBasedAllocatedResources;
 		});
 		//RAMD Cloud Watch
       get("/RAMD/cloudwatch", (request, response) -> {
@@ -1607,6 +1610,12 @@ public class LoadBalancerService {
              
          
 
+     
+      
+      
+      
+      
+      
       //Harsha 
 		
         
@@ -1637,10 +1646,10 @@ public class LoadBalancerService {
         		int storage = resourceList.get(j).getStorage();
         		System.out.println(newLine);
         		//System.out.println("Total Resources Before Allocation");
-        		System.out.println("Resource Name: "+requestName);
-        		System.out.println("CPU units: "+cpu);
-        		System.out.println("Memory units: "+memory);
-        		System.out.println("Storage units: "+storage);
+        		System.out.println("Name of the resource: "+requestName);
+        		System.out.println("Number of CPU units: "+cpu);
+        		System.out.println("Number of Memory units: "+memory);
+        		System.out.println("Number of Storage units: "+storage);
         		System.out.println("Full Allocation Flag: " + resourceList.get(j).isFullAllocation());
         		System.out.println("Partial Allocation Flag: " + resourceList.get(j).isPartialAllocation());
         		System.out.println(newLine);
@@ -1654,9 +1663,9 @@ public class LoadBalancerService {
         		int storage = requestList.get(j).getStorage();
         		System.out.println(newLine);
         		System.out.println("Request ID: "+requestID);
-        		System.out.println("CPU units required: "+cpu);
-        		System.out.println("Memory units required: "+memory);
-        		System.out.println("Storage units required: "+storage);
+        		System.out.println("Number of CPU units required: "+cpu);
+        		System.out.println("Number of Memory units required: "+memory);
+        		System.out.println("Number of Storage units required: "+storage);
         		System.out.println("Allocation Status: " +requestList.get(j).isAllocated());
         		System.out.println(newLine);
         	}
@@ -1866,9 +1875,9 @@ public class LoadBalancerService {
         				
         			{
         				System.out.println(newLine);
-        				System.out.println("---------------------------------------------------------------------");
+        				System.out.println("**********************************************************************");
         				System.out.println("Requested resources for Request ID: "+requestList.get(i).getRequestId() +" are Allocated");
-        				System.out.println("----------------------------------------------------------------------");
+        				System.out.println("**********************************************************************");
         				System.out.println(newLine);
         			}
         			else
@@ -1887,9 +1896,9 @@ public class LoadBalancerService {
         		System.out.println(newLine);
         		
         		System.out.println("Resource Name: "+requestName);
-        		System.out.println("CPU units: "+cpu);
-        		System.out.println("Memory units: "+memory);
-        		System.out.println("Storage units: "+storage);
+        		System.out.println("Number of CPU units: "+cpu);
+        		System.out.println("Number of Memory units: "+memory);
+        		System.out.println("Number of Storage units: "+storage);
         		System.out.println("Full Allocation Flag: " + resourceList.get(j).isFullAllocation());
         		System.out.println("Partial Allocation Flag: " + resourceList.get(j).isPartialAllocation());
         		System.out.println(newLine);
@@ -1924,11 +1933,11 @@ public class LoadBalancerService {
         	
         	Map<String, Object> billing = new HashMap<>();
         	
-        	System.out.println("-----------------------------------------------------------");
+        	System.out.println("*********************************************************");
         	System.out.println("The cost of CPU units: $"+costOfCpuUnints+"/units");
         	System.out.println("The cost of Memory units: $"+costOfMemoryUnits+"/units");
         	System.out.println("The cost of Storage units: $"+costOfStorageUnits+"/units");
-        	System.out.println("-----------------------------------------------------------");
+        	System.out.println("**********************************************************");
         	
         	ArrayList<Resources> allocatedResources = new ArrayList<Resources>();
         	allocatedResources = resourceStorage.getAllocatedResourcesFromHashMap();
@@ -2000,9 +2009,9 @@ public class LoadBalancerService {
         		System.out.println(newLine);
     
         		System.out.println("Resource Name: "+requestName);
-        		System.out.println("CPU units: "+cpu);
-        		System.out.println("Memory units: "+memory);
-        		System.out.println("Storage units: "+storage);
+        		System.out.println("Number of CPU units: "+cpu);
+        		System.out.println("Number of Memory units: "+memory);
+        		System.out.println("Number of Storage units: "+storage);
         		System.out.println("Location ID:" +locationID);
         		System.out.println("Full Allocation Flag: " + resourceList.get(j).isFullAllocation());
         		System.out.println("Partial Allocation Flag: " + resourceList.get(j).isPartialAllocation());
@@ -2018,9 +2027,9 @@ public class LoadBalancerService {
         		int locationID = requestList.get(j).getLocationId();
         		System.out.println(newLine);
         		System.out.println("Request ID: "+requestID);
-        		System.out.println("CPU units required: "+cpu);
-        		System.out.println("Memory units required: "+memory);
-        		System.out.println("Storage units required: "+storage);
+        		System.out.println("Number of CPU units required: "+cpu);
+        		System.out.println("Number of Memory units required: "+memory);
+        		System.out.println("Number Storage units required: "+storage);
         		System.out.println("Location ID required:" +locationID);
         		System.out.println("Allocation Status: " +requestList.get(j).isAllocated());
         		System.out.println(newLine);
@@ -2233,9 +2242,9 @@ public class LoadBalancerService {
         				
         			{
         				System.out.println(newLine);
-        				System.out.println("---------------------------------------------------------------------");
+        				System.out.println("**********************************************************************");
         				System.out.println("Requested resources for Request ID: "+requestList.get(i).getRequestId() +" are Allocated");
-        				System.out.println("----------------------------------------------------------------------");
+        				System.out.println("**********************************************************************");
         				System.out.println(newLine);
         			}
         			else
@@ -2265,7 +2274,7 @@ public class LoadBalancerService {
         	
         	resourceNames = resourceStorage.updateResourcesInHashMap(resourceList);
         	
-        	 return "Following Resources Allocated by Pso ALgorithm" +resourceNames;
+        	 return "Following Resources Allocated by Pso ALgorithm " +resourceNames;
         	
         }); 
 get("/psoAllocation/cloudwatch", (request, response) -> {
